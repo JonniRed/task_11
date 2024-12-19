@@ -4,11 +4,74 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="./style.css">
   <title>WebSocket</title>
 </head>
 
 <body>
+  <div class="btn-wrap">
+    <button id="enter">Войти в чат</button>
+    <button id="close" title="Выйти из чата"> Quit</button>
+  </div>
 
+  <div class="container">
+    <div id="message"></div>
+    <div class="sender">
+      <textarea type="text" placeholder="Enter message..." id="text"></textarea>
+      <button id="sendBtn">Отправить</button>
+    </div>
+
+  </div>
+
+  <script>
+    const message = document.querySelector("#message");
+    const text = document.querySelector("#text");
+    const button = document.querySelector("#sendBtn");
+    const closeBtn = document.querySelector("#close");
+    const enterBtn = document.querySelector("#enter");
+    // const socket = new WebSocket("ws:noServer");
+
+
+
+    enterBtn.addEventListener("click", () => {
+      const socket = new WebSocket('ws:localhost:8080/chat');
+      alert("Welcome in group chat");
+      socket.addEventListener("message", (event) => {
+        message.innerHTML += `<p>${event.data}</p>`;
+        console.log(event.data);
+      });
+      // socket.addEventListener('close', (event) => {
+      //   alert('Соединение закрыто');
+      // });
+      socket.onerror = (event) => {
+        console.log('Зайдите в чат, чтобы начать общение');
+      }
+
+      button.addEventListener("click", () => {
+
+        const m = text.value;
+        socket.send(m);
+        text.value = '';
+      })
+      text.addEventListener("keydown", () => {
+        if (event.code === "Enter") {
+          const m = text.value;
+          socket.send(m);
+          text.value = '';
+        }
+      })
+
+      closeBtn.addEventListener("click", () => {
+        if (socket.readyState === WebSocket.OPEN) {
+          socket.close();
+        }
+
+      })
+    });
+
+
+
+  </script>
 </body>
 
 </html>
